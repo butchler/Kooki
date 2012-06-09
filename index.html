@@ -1,0 +1,46 @@
+<html>
+   <head>
+      <title>Cookie Monster: Fuzzy 'n Blue 'n Depressed</title>
+
+      <style type="text/css">
+         @font-face
+         {
+            font-family: 'Joystix';
+            src: url('fonts/joystix-monospace-webfont.eot');
+            src: url('fonts/joystix-monospace-webfont.eot?#iefix') format('embedded-opentype'),
+                 url('fonts/joystix-monospace-webfont.woff') format('woff'),
+                 url('fonts/joystix-monospace-webfont.ttf') format('truetype'),
+                 url('fonts/joystix-monospace-webfont.svg#JoystixMonospaceRegular') format('svg');
+            font-weight: normal;
+            font-style: normal;
+         }
+
+         body
+         {
+            color: white;
+            background-color: black;
+            padding: 20px;
+         }
+         #container
+         {
+            margin: 0 auto;
+         }
+      </style>
+   </head>
+
+   <body>
+      <div id="container"></div>
+
+      <script type="text/javascript" src="js/GameLoop.js"></script>
+      <script type="text/javascript" src="js/Input.js"></script>
+
+      <script type="text/javascript" src="js/Kooki.js"></script>
+      <script type="text/javascript" src="js/Maze.js"></script>
+
+      <script type="text/javascript" src="js/LoadingScene.js"></script>
+      <script type="text/javascript" src="js/TitleScene.js"></script>
+      <script type="text/javascript" src="js/LevelScene.js"></script>
+
+      <script type="text/javascript">Kooki.main();</script>
+   </body>
+</html>
