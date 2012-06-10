@@ -9,7 +9,12 @@ Kooki.LoadingScene =
       // Call the load() function of each scene.
       // These functions can call the callback passed to them which will
       // update the loading progress.
-      var scenes = [Kooki.TitleScene, Kooki.LevelScene];
+      var scenes = [];
+      for (name in Kooki)
+      {
+         if (name.slice(-5) === 'Scene' && Kooki[name].load !== undefined)
+            scenes.push(Kooki[name]);
+      }
 
       var self = this;
       scenes.forEach(function(scene) {
