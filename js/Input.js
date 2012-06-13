@@ -1,15 +1,16 @@
 // A simple helper to make accessing current mouse and keyboard info a little easier.
 // Usage:
-// var input = new Input(element);   // element is probably your canvas element.
+// var input = new Input(canvasElement);
 // input.mouse.pressed()        // Returns true or false.
 // input.mouse.position()       // Returns { x: ..., y: ... }.
-// input.key.pressed(someKey)   // Returns true or false.
+// input.key.pressed(Input.keys.SOME_KEY)   // Returns true or false.
 var Input = function(element)
 {
    // Private variables
    this._mousePosition = { x: 0, y: 0 };
    this._mousePressed = false;
    this._keys = [];
+   this._listeners = [];
 
    // Add event listeners so that we can keep track of the current mouse and keyboard states.
    var self = this;
@@ -18,6 +19,12 @@ var Input = function(element)
    element.addEventListener('mouseup',   function(e) { self._setMousePressed(e, false); });
    element.addEventListener('keydown', function(e) { self._setKeyPressed(e, true); });
    element.addEventListener('keyup',   function(e) { self._setKeyPressed(e, false); });
+
+   element.addEventListener('mousemove', function(e) { self._callListeners('mousemove', e); });
+   element.addEventListener('mousedown', function(e) { self._callListeners('mousedown', e); });
+   element.addEventListener('mouseup',   function(e) { self._callListeners('mouseup', e); });
+   element.addEventListener('keydown', function(e) { self._callListeners('keydown', e); });
+   element.addEventListener('keyup',   function(e) { self._callListeners('keyup', e); });
 
    this.mouse = {
       position: function() { return self._mousePosition; },
@@ -35,6 +42,36 @@ var Input = function(element)
    };
 };
 
+// Adding a listener to the Input class is just a shortcut to adding listeners
+// for keydown, keyup, mousedown, mouseup, and mousemove all at the same time.
+// On all of those events, the Input object will call the corresponding method
+// (e.g. object.keydown, object.mousemove) on the given object if it exists.
+// Example usage:
+// var object =
+// {
+//    keydown: function(e) { alert('You pressed ' + e.keyCode); },
+//    mousedown: function(e) { alert('You pressed ' + e.button); }
+// };
+// input.addListener(object);
+Input.prototype.addListener = function(object)
+{
+   this._listeners.push(object);
+};
+
+Input.prototype.removeListener = function(object)
+{
+   this._listeners = this._listeners.filter(function(listener) { return listener !== object; });
+};
+
+Input.prototype._callListeners = function(eventName, e)
+{
+   this._listeners.forEach(function(listener)
+   {
+      if (listener[eventName] !== undefined)
+         listener[eventName].call(listener, e);
+   });
+};
+
 Input.prototype._setMousePressed = function(e, pressed)
 {
    this._mousePressed = pressed;
@@ -43,12 +80,9 @@ Input.prototype._setMousePressed = function(e, pressed)
 Input.prototype._setKeyPressed = function(e, pressed)
 {
    this._keys[e.keyCode] = pressed;
-
-   if (e.key !== undefined)
-      this._keys[e.key] = pressed;
 };
 
-Input.key =
+Input.keys =
 {
    CANCEL: 3,
    HELP: 6,

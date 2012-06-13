@@ -11,7 +11,7 @@ Kooki.TitleScene =
    },
    update: function()
    {
-      if (Kooki.input.key.pressed(Input.key.RETURN))
+      if (Kooki.input.key.pressed(Input.keys.RETURN))
          Kooki.LevelScene.start();
    },
    draw: function()
