@@ -1,24 +1,22 @@
 Kooki.TitleScene =
 {
-   numResources: 1,
    load: function(updateProgress)
    {
       this.titleImage = Kooki.loadImage('images/start.png', updateProgress);
+      this.numResources = 1;
    },
    start: function()
    {
-      Kooki.gameLoop.addListener(this);
+      Kooki.input.addListener(this);
+
+      Kooki.context.drawImage(this.titleImage, 0, 0, Kooki.SCREEN_WIDTH, Kooki.SCREEN_HEIGHT);
    },
-   update: function()
+   keydown: function(e)
    {
-      if (Kooki.input.key.pressed(Input.keys.RETURN))
+      if (e.keyCode === Input.keys.RETURN)
       {
-         Kooki.gameLoop.removeListener(this);
+         Kooki.input.removeListener(this);
          Kooki.LevelScene.start();
       }
-   },
-   draw: function()
-   {
-      Kooki.context.drawImage(this.titleImage, 0, 0, Kooki.SCREEN_WIDTH, Kooki.SCREEN_HEIGHT);
    }
 };

@@ -82,6 +82,7 @@ Input.prototype._setKeyPressed = function(e, pressed)
    this._keys[e.keyCode] = pressed;
 };
 
+// Source: https://developer.mozilla.org/en/DOM/KeyboardEvent
 Input.keys =
 {
    CANCEL: 3,

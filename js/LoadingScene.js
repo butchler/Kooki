@@ -31,8 +31,7 @@ Kooki.LoadingScene =
    draw: function()
    {
       // Clear canvas
-      Kooki.context.fillStyle = 'black';
-      Kooki.context.fillRect(0, 0, Kooki.SCREEN_WIDTH, Kooki.SCREEN_HEIGHT);
+      Kooki.context.clearRect(0, 0, Kooki.SCREEN_WIDTH, Kooki.SCREEN_HEIGHT);
 
       // Display loading message
       Kooki.context.fillStyle = 'white';

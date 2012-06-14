@@ -23,10 +23,6 @@ Kooki.LevelScene =
       // Make sure maze is on top of the canvas so we can actually see it.
       this.mazeCanvas.style.zIndex = Kooki.canvas.style.zIndex + 1;
 
-      // Generate first level
-      this.maze = new Kooki.Maze(Kooki.MAZE_COLS, Kooki.MAZE_ROWS);
-      this.maze.draw(this.mazeContext);
-
       // Listen for keydown, mousedown, etc.
       Kooki.input.addListener(this);
 
@@ -53,6 +49,11 @@ Kooki.LevelScene =
    {
       this.level += 1;
 
+      // Generate and draw a new maze.
+      this.maze = new Kooki.Maze(Kooki.MAZE_COLS, Kooki.MAZE_ROWS);
+      this.mazeContext.clearRect(0, 0, Kooki.SCREEN_WIDTH, Kooki.SCREEN_HEIGHT);
+      this.maze.draw(this.mazeContext);
+
       // Reset player position.
       this.player.position = { col: 0, row: 0 };
 
@@ -67,7 +68,7 @@ Kooki.LevelScene =
       });
 
       // Generate monsters
-      var numMonsters = this.level * 2;
+      var numMonsters = this.level * 3;
       this.monsters = [];
       for (var i = 0; i < numMonsters; i++)
       {
@@ -84,10 +85,10 @@ Kooki.LevelScene =
    update: function(delta)
    {
       this.movePlayer();
-      //checkForDeath();
+      this.checkForDeath();
       this.moveMonsters();
-      //checkForDeath();
-      //checkForWin();
+      this.checkForDeath();
+      this.checkForWin();
 
       if (Kooki.gameLoop.millisecondsSince(this.lastPlayerMove) >= Kooki.PLAYER_MOVE_DELAY)
       {
@@ -155,10 +156,42 @@ Kooki.LevelScene =
       if (keyDirections[e.keyCode] !== undefined)
          this.player.desiredDirection = keyDirections[e.keyCode];
    },
+   checkForDeath: function()
+   {
+      // Check if the player is in the same cell as a monster.
+      for (var i = 0; i < this.monsters.length; i++)
+      {
+         var monster = this.monsters[i];
+         if (monster.position.col === this.player.position.col &&
+             monster.position.row === this.player.position.row)
+         {
+            // The player got munched.
+            this.player.numBites += 1;
+            this.player.image = this.cookieImages[this.player.numBites];
+
+            // Reset their position.
+            this.player.position = { col: 0, row: 0 };
+
+            break;
+         }
+      }
+
+      if (this.player.numBites > 2)
+      {
+         this.gameOver();
+      }
+   },
+   checkForWin: function()
+   {
+      if (this.player.position.col === this.milk.position.col &&
+          this.player.position.row === this.milk.position.row)
+      {
+         this.startNextLevel();
+      }
+   },
    draw: function()
    {
-      Kooki.context.fillStyle = 'black';
-      Kooki.context.fillRect(0, 0, Kooki.SCREEN_WIDTH, Kooki.SCREEN_HEIGHT);
+      Kooki.context.clearRect(0, 0, Kooki.SCREEN_WIDTH, Kooki.SCREEN_HEIGHT);
 
       this.milk.draw();
       this.player.draw();
@@ -177,5 +210,15 @@ Kooki.LevelScene =
          monster.draw();
          Kooki.context.restore();
       }
+   },
+   gameOver: function()
+   {
+      // Clean up.
+      Kooki.container.removeChild(this.mazeCanvas);
+      Kooki.input.removeListener(this);
+      Kooki.gameLoop.removeListener(this);
+
+      // Switch to game over screen.
+      Kooki.GameOverScene.start();
    }
 };
