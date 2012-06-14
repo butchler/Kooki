@@ -21,7 +21,7 @@ Kooki.KittyScene =
       this.imageY = 0;
       this.lastKitty = 0;
 
-      Kooki.gameLoop.setScene(this);
+      Kooki.gameLoop.addListener(this);
    },
    update: function(delta)
    {

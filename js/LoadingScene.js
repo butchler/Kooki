@@ -27,7 +27,7 @@ Kooki.LoadingScene =
       Kooki.context.textAlign = 'center';
       Kooki.context.textBaseline = 'middle';
 
-      Kooki.gameLoop.setScene(this);
+      Kooki.gameLoop.addListener(this);
    },
    update: function(delta) {},
    draw: function()
@@ -46,6 +46,9 @@ Kooki.LoadingScene =
 
       // Start the title scene when all resources have been loaded
       if (this.resourcesLoaded == this.numResources)
+      {
+         Kooki.gameLoop.removeListener(this);
          Kooki.TitleScene.start();
+      }
    }
 };

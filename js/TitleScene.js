@@ -7,12 +7,15 @@ Kooki.TitleScene =
    },
    start: function()
    {
-      Kooki.gameLoop.setScene(this);
+      Kooki.gameLoop.addListener(this);
    },
    update: function()
    {
       if (Kooki.input.key.pressed(Input.keys.RETURN))
+      {
+         Kooki.gameLoop.removeListener(this);
          Kooki.LevelScene.start();
+      }
    },
    draw: function()
    {

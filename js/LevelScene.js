@@ -29,11 +29,11 @@ Kooki.LevelScene =
       this.playerPosition = { col: 0, row: 0 };
       this.playerDirection = 'west';
 
-      this.lastPlayerMove = Kooki.gameLoop.now();
+      // Listen for update and draw.
+      Kooki.gameLoop.addListener(this);
 
       Kooki.input.addListener(this);
 
-      Kooki.gameLoop.setScene(this);
    },
    update: function()
    {
