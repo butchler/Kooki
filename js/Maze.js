@@ -136,6 +136,12 @@ Kooki.Maze.prototype._isValidCell = function(position)
            && !this.cells[position.row][position.col].visited);
 };
 
+// Returns true if the cell at the given position has a wall in the given direction.
+Kooki.Maze.prototype.hasWall = function(position, direction)
+{
+   return (this.cells[position.row][position.col][direction] === true);
+};
+
 Kooki.Maze.prototype.draw = function(context)
 {
    context.fillStyle = '#0000ff';

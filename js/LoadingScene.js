@@ -6,21 +6,19 @@ Kooki.LoadingScene =
       this.resourcesLoaded = 0;
       this.updateProgress = this.updateProgress.bind(this);
 
-      // Call the load() function of each scene.
-      // These functions can call the callback passed to them which will
-      // update the loading progress.
-      var scenes = [];
+      // Call all of the load() functions in Kooki namespace.
+      // These functions can call the callback passed to them which will update
+      // the loading progress so that LoadingScene knows when it is finished loading.
       for (name in Kooki)
       {
-         if (name.slice(-5) === 'Scene' && Kooki[name].load !== undefined)
-            scenes.push(Kooki[name]);
-      }
+         var object = Kooki[name];
 
-      var self = this;
-      scenes.forEach(function(scene) {
-         scene.load(self.updateProgress);
-         self.numResources += scene.numResources;
-      });
+         if (object.load !== undefined)
+         {
+            object.load(this.updateProgress);
+            this.numResources += object.numResources;
+         }
+      }
 
       // Set up font
       Kooki.context.font = '24px Joystix';

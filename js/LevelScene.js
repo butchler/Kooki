@@ -1,11 +1,10 @@
 Kooki.LevelScene =
 {
-   numResources: 5,
    load: function(updateProgress)
    {
-      // Load milk, cookie, and monster images.
+      // Load milk image.
       this.cookieImages = [];
-      for (var i = 0; i < 3; i++)
+      for (var i = 0; i <= 2; i++)
       {
          this.cookieImages.push(Kooki.loadImage('images/cookie' + i + '.png', updateProgress));
       }
@@ -13,47 +12,136 @@ Kooki.LevelScene =
       this.milkImage = Kooki.loadImage('images/milk.png', updateProgress);
 
       this.monsterImage = Kooki.loadImage('images/monster.png', updateProgress);
+
+      this.numResources = 5;
    },
    start: function()
    {
       // Create canvas to hold maze so that we don't have to redraw maze every frame.
       this.mazeCanvas = Kooki.createCanvas(Kooki.container, Kooki.SCREEN_WIDTH, Kooki.SCREEN_HEIGHT);
       this.mazeContext = this.mazeCanvas.getContext('2d');
-      this.mazeCanvas.style.zIndex = 1;
+      // Make sure maze is on top of the canvas so we can actually see it.
+      this.mazeCanvas.style.zIndex = Kooki.canvas.style.zIndex + 1;
 
       // Generate first level
       this.maze = new Kooki.Maze(Kooki.MAZE_COLS, Kooki.MAZE_ROWS);
       this.maze.draw(this.mazeContext);
 
-      // Initialize variables
-      this.playerPosition = { col: 0, row: 0 };
-      this.playerDirection = 'west';
+      // Listen for keydown, mousedown, etc.
+      Kooki.input.addListener(this);
 
       // Listen for update and draw.
       Kooki.gameLoop.addListener(this);
 
-      Kooki.input.addListener(this);
+      // Initialize variables.
+      this.player = new Kooki.MazeObject(
+      {
+         col: 0,
+         row: 0,
+         image: this.cookieImages[0],
+         direction: null,
+         movementDelay: Kooki.PLAYER_MOVE_DELAY
+      });
+      // The number of times that the cookie has been munched by a monster.
+      this.player.numBites = 0;
+      this.player.desiredDirection = null;
 
+      this.level = 0;
+      this.startNextLevel();
    },
-   update: function()
+   startNextLevel: function()
    {
+      this.level += 1;
+
+      // Reset player position.
+      this.player.position = { col: 0, row: 0 };
+
+      // Place milk
+      this.milk = new Kooki.MazeObject(
+      {
+         col: Kooki.MAZE_COLS - 1,
+         row: Kooki.randInt(0, Kooki.MAZE_ROWS),
+         image: this.milkImage,
+         direction: null,
+         movementDelay: 0
+      });
+
+      // Generate monsters
+      var numMonsters = this.level * 2;
+      this.monsters = [];
+      for (var i = 0; i < numMonsters; i++)
+      {
+         this.monsters.push(new Kooki.MazeObject(
+         {
+            col: Kooki.randInt(Math.floor(Kooki.MAZE_COLS / 2), Kooki.MAZE_COLS),
+            row: Kooki.randInt(0, Kooki.MAZE_ROWS),
+            image: this.monsterImage,
+            direction: Kooki.Maze._directions[Kooki.randInt(0, 4)],
+            movementDelay: Kooki.MONSTER_MOVE_DELAY
+         }));
+      }
+   },
+   update: function(delta)
+   {
+      this.movePlayer();
+      //checkForDeath();
+      this.moveMonsters();
+      //checkForDeath();
+      //checkForWin();
+
       if (Kooki.gameLoop.millisecondsSince(this.lastPlayerMove) >= Kooki.PLAYER_MOVE_DELAY)
       {
          this.lastPlayerMove = Kooki.gameLoop.now();
 
          // Move player if there is no wall in the way.
-         if (this.maze.cells[this.playerPosition.row][this.playerPosition.col][this.playerDirection] === false)
+         if (this.maze.hasWall(this.player.position, this.player.direction) === false)
          {
             this.playerPosition = Kooki.Maze._getPosition(this.playerPosition, this.playerDirection);
          }
+      }
+   },
+   movePlayer: function()
+   {
+      // Change the player's direction if there aren't any walls in the way.
+      if (this.maze.hasWall(this.player.position, this.player.desiredDirection) === false)
+      {
+         this.player.direction = this.player.desiredDirection;
+      }
 
-         // Check for death
+      this.player.move();
+   },
+   moveMonsters: function()
+   {
+      for (var i = 0; i < this.monsters.length; i++)
+      {
+         var monster = this.monsters[i];
 
-         // Move monsters
+         if (Kooki.gameLoop.millisecondsSince(monster._lastMoved) >= Kooki.MONSTER_MOVE_DELAY)
+         {
+            // Try moving in other directions randomly until we find one that is
+            // not blocked by a wall.
+            var randomDirections = Kooki.shuffleArray(Kooki.Maze._directions);
 
-         // Check for death
+            for (var j = 0; j < 4; j++)
+            {
+               var randomDirection = randomDirections[j];
 
-         // Check for win
+               // Exclude the opposite of the current direction so that monsters
+               // can't make a u-turn.
+               if (randomDirection !== Kooki.Maze._oppositeDirection(monster.direction) &&
+                  !this.maze.hasWall(monster.position, randomDirection))
+               {
+                  monster.direction = randomDirection;
+                  break;
+               }
+            }
+
+            // If we got stuck in a dead end, choose a random direction.
+            if (j === 4)
+               monster.direction = randomDirections[0];
+         }
+
+         monster.move();
       }
    },
    keydown: function(e)
@@ -65,36 +153,29 @@ Kooki.LevelScene =
       keyDirections[Input.keys.LEFT] = 'west';
 
       if (keyDirections[e.keyCode] !== undefined)
-         this.playerDirection = keyDirections[e.keyCode];
+         this.player.desiredDirection = keyDirections[e.keyCode];
    },
    draw: function()
    {
       Kooki.context.fillStyle = 'black';
       Kooki.context.fillRect(0, 0, Kooki.SCREEN_WIDTH, Kooki.SCREEN_HEIGHT);
 
-      var sign = function(num)
+      this.milk.draw();
+      this.player.draw();
+      for (var i = 0; i < this.monsters.length; i++)
       {
-         if (num > 0)
-            return 1;
-         else if (num < 0)
-            return -1;
+         var monster = this.monsters[i];
 
-         return 0;
+         // Rotate context to match the monster's direction.
+         Kooki.context.save();
+         var centerX = (monster.position.col + 0.5) * Kooki.CELL_SIZE;
+         var centerY = (monster.position.row + 0.5) * Kooki.CELL_SIZE;
+         Kooki.context.translate(centerX, centerY);
+         Kooki.context.rotate(Kooki.Maze._directions.indexOf(monster.direction) * Math.PI / 2);
+         Kooki.context.translate(-centerX, -centerY);
+
+         monster.draw();
+         Kooki.context.restore();
       }
-
-      // Draw milk
-      // Draw player
-      var playerX = this.playerPosition.col * Kooki.CELL_SIZE + 4;
-      var playerY = this.playerPosition.row * Kooki.CELL_SIZE + 4;
-      Kooki.context.drawImage(this.cookieImages[0], playerX, playerY);
-
-      // Draw monsters
    }
-   // On death:
-   //    If no more lives, go to game over scene.
-   //    Otherwise, respawn with one less life (and update cookie image).
-   // On win:
-   //    Update score or whatever
-   //    Switch to win scene
-   //    When it switches back, generate new level
 };

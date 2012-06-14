@@ -31,12 +31,21 @@ var Kooki =
       Kooki.SCREEN_HEIGHT = Kooki.MAZE_ROWS * Kooki.CELL_SIZE;
 
       Kooki.canvas = Kooki.createCanvas(Kooki.container, Kooki.SCREEN_WIDTH, Kooki.SCREEN_HEIGHT);
-      Kooki.canvas.focus();
-      Kooki.canvas.onblur = function() { Kooki.gameLoop.stop(); }
-      Kooki.canvas.onfocus = function() { Kooki.gameLoop.start(); }
       Kooki.context = Kooki.canvas.getContext('2d');
 
-      Kooki.input = new Input(Kooki.canvas);
+      // Let the canvas container element handle events because there may be
+      // multiple canvases (one for the maze, one for the player and monsters, etc.).
+      Kooki.input = new Input(Kooki.container);
+
+      // Make the canvas container focusable.
+      Kooki.container.tabIndex = 1;
+      // Remove outline that the browser puts around the element when it's focused.
+      Kooki.container.style.outline = 'none';
+      // Make the game focused by default.
+      Kooki.container.focus();
+      // Make the game loop stop and start when the canvas container loses and gains focus.
+      Kooki.container.onblur = function() { Kooki.gameLoop.stop(); }
+      Kooki.container.onfocus = function() { Kooki.gameLoop.start(); }
 
       /*Kooki.mazeCanvas = Kooki.createCanvas(Kooki.container, Kooki.SCREEN_WIDTH, Kooki.SCREEN_HEIGHT);
       Kooki.mazeContext = Kooki.mazeCanvas.getContext('2d');*/
@@ -62,10 +71,6 @@ var Kooki =
       canvas.style.top = '0';
       canvas.width = width;
       canvas.height = height;
-      // Make the canvas keyboard focusable. (Is this a dirty haxx?)
-      canvas.tabIndex = 1;
-      // Remove outline that browser puts around canvas when it's focused.
-      canvas.style.outline = 'none';
 
       container.appendChild(canvas);
 
