@@ -89,17 +89,6 @@ Kooki.LevelScene =
       this.moveMonsters();
       this.checkForDeath();
       this.checkForWin();
-
-      if (Kooki.gameLoop.millisecondsSince(this.lastPlayerMove) >= Kooki.PLAYER_MOVE_DELAY)
-      {
-         this.lastPlayerMove = Kooki.gameLoop.now();
-
-         // Move player if there is no wall in the way.
-         if (this.maze.hasWall(this.player.position, this.player.direction) === false)
-         {
-            this.playerPosition = Kooki.Maze._getPosition(this.playerPosition, this.playerDirection);
-         }
-      }
    },
    movePlayer: function()
    {
