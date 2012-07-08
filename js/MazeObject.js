@@ -17,7 +17,7 @@ Kooki.MazeObject.prototype.move = function(delta)
       // Move if there aren't any walls in the way.
       if (this.direction !== null && Kooki.LevelScene.maze.hasWall(this.position, this.direction) === false)
       {
-         this.position = Kooki.Maze._getPosition(this.position, this.direction);
+         this.position = Kooki.getPosition(this.position, this.direction);
       }
    }
 };

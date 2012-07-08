@@ -19,8 +19,6 @@ var Kooki =
    PLAYER_MOVE_DELAY: (1000 / 6),
    MONSTER_MOVE_DELAY: (1000 / 4),
 
-   MAX_MONSTERS: 100,
-
    // The starting point of the game
    main: function()
    {
@@ -109,5 +107,34 @@ var Kooki =
       }
 
       return shuffledArray;
+   },
+
+   directions: [ 'north', 'east', 'south', 'west' ],
+
+   offsets: {
+      north: { row: -1, col: 0 },
+      east: { row: 0, col: 1 },
+      south: { row: 1, col: 0 },
+      west: { row: 0, col: -1 }
+   },
+
+   // Get the column and row of the adjacent cell in the given direction from the
+   // cell at the given position.
+   getPosition: function(position, direction)
+   {
+      return {
+         col: (position.col + Kooki.offsets[direction].col),
+         row: (position.row + Kooki.offsets[direction].row)
+      };
+   },
+
+   oppositeDirection: function(direction)
+   {
+      var index = Kooki.directions.indexOf(direction);
+
+      if (index < 0)
+         return null;
+
+      return Kooki.directions[(index + 2) % 4];
    }
 };

@@ -22,28 +22,18 @@ Kooki.Maze = function(width, height)
    this._randomlyRemoveWalls(Kooki.MAZE_REMOVE_WALL_PERCENTAGE / 100 * width * height);
 };
 
-Kooki.Maze._directions = [ 'north', 'east', 'south', 'west' ];
-
-Kooki.Maze._offsets =
-{
-   north: { row: -1, col: 0 },
-   east: { row: 0, col: 1 },
-   south: { row: 1, col: 0 },
-   west: { row: 0, col: -1 }
-};
-
 // Randomly generate maze by "drilling" through the walls in random directions
 // recursively.
 Kooki.Maze.prototype._recursivelyDrill = function(startPosition)
 {
    this.cells[startPosition.row][startPosition.col].visited = true;
 
-   var randomDirections = Kooki.shuffleArray(Kooki.Maze._directions);
+   var randomDirections = Kooki.shuffleArray(Kooki.directions);
 
    for (var i = 0; i < 4; i++)
    {
       var randomDirection = randomDirections[i];
-      var nextPosition = Kooki.Maze._getPosition(startPosition, randomDirection);
+      var nextPosition = Kooki.getPosition(startPosition, randomDirection);
 
       if (this._knockDownWall(startPosition, randomDirection))
       {
@@ -76,7 +66,7 @@ Kooki.Maze.prototype._randomlyRemoveWalls = function(numCells)
    var self = this;
    randomPositions.forEach(function(position)
    {
-      var randomDirections = Kooki.shuffleArray(Kooki.Maze._directions);
+      var randomDirections = Kooki.shuffleArray(Kooki.directions);
 
       for (var i = 0; i < 4; i++)
       {
@@ -91,40 +81,20 @@ Kooki.Maze.prototype._randomlyRemoveWalls = function(numCells)
    });
 };
 
-// Get the column and row of the adjacent cell in the given direction from the
-// cell at the given position.
-Kooki.Maze._getPosition = function(position, direction)
-{
-   return {
-      col: (position.col + Kooki.Maze._offsets[direction].col),
-      row: (position.row + Kooki.Maze._offsets[direction].row)
-   };
-};
-
 // Knock down both the given cell's wall and the wall of the adjacent cell in
 // the given direction. Returns true if it successfully knocked down the walls
 // and false otherwise.
 Kooki.Maze.prototype._knockDownWall = function(position, direction)
 {
-   var otherPosition = Kooki.Maze._getPosition(position, direction);
+   var otherPosition = Kooki.getPosition(position, direction);
 
    if (!this._isValidCell(otherPosition))
       return false;
 
    this.cells[position.row][position.col][direction] = false;
-   this.cells[otherPosition.row][otherPosition.col][Kooki.Maze._oppositeDirection(direction)] = false;
+   this.cells[otherPosition.row][otherPosition.col][Kooki.oppositeDirection(direction)] = false;
 
    return true;
-};
-
-Kooki.Maze._oppositeDirection = function(direction)
-{
-   var index = Kooki.Maze._directions.indexOf(direction);
-
-   if (index < 0)
-      return null;
-
-   return Kooki.Maze._directions[(index + 2) % 4];
 };
 
 // Checks if the given position is within the boundaries of the maze and

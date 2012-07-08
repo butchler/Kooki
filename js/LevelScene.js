@@ -77,7 +77,7 @@ Kooki.LevelScene =
             col: Kooki.randInt(Math.floor(Kooki.MAZE_COLS / 2), Kooki.MAZE_COLS),
             row: Kooki.randInt(0, Kooki.MAZE_ROWS),
             image: this.monsterImage,
-            direction: Kooki.Maze._directions[Kooki.randInt(0, 4)],
+            direction: Kooki.directions[Kooki.randInt(0, 4)],
             movementDelay: Kooki.MONSTER_MOVE_DELAY
          }));
       }
@@ -110,7 +110,7 @@ Kooki.LevelScene =
          {
             // Try moving in other directions randomly until we find one that is
             // not blocked by a wall.
-            var randomDirections = Kooki.shuffleArray(Kooki.Maze._directions);
+            var randomDirections = Kooki.shuffleArray(Kooki.directions);
 
             for (var j = 0; j < 4; j++)
             {
@@ -118,7 +118,7 @@ Kooki.LevelScene =
 
                // Exclude the opposite of the current direction so that monsters
                // can't make a u-turn.
-               if (randomDirection !== Kooki.Maze._oppositeDirection(monster.direction) &&
+               if (randomDirection !== Kooki.oppositeDirection(monster.direction) &&
                   !this.maze.hasWall(monster.position, randomDirection))
                {
                   monster.direction = randomDirection;
@@ -193,7 +193,7 @@ Kooki.LevelScene =
          var centerX = (monster.position.col + 0.5) * Kooki.CELL_SIZE;
          var centerY = (monster.position.row + 0.5) * Kooki.CELL_SIZE;
          Kooki.context.translate(centerX, centerY);
-         Kooki.context.rotate(Kooki.Maze._directions.indexOf(monster.direction) * Math.PI / 2);
+         Kooki.context.rotate(Kooki.directions.indexOf(monster.direction) * Math.PI / 2);
          Kooki.context.translate(-centerX, -centerY);
 
          monster.draw();
